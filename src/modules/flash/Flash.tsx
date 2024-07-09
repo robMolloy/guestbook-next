@@ -22,10 +22,9 @@ export const Flash = (p: {
 
   useEffect(() => {
     if (flashes.length === 0) return;
-    if (finishedFlashes.length === flashes.length) {
-      setFlashes([]);
-      setFinishedFlashes([]);
-    }
+    if (finishedFlashes.length !== flashes.length) return;
+    setFlashes([]);
+    setFinishedFlashes([]);
   }, [finishedFlashes]);
 
   return (

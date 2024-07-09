@@ -32,7 +32,7 @@ const OpenDrawerWrapper: React.FC<{ children?: React.ReactNode }> = (p) => {
 
 const NavBarContainer = (p: { children: React.ReactNode }) => {
   return (
-    <div className="sticky top-0 z-[10]">
+    <div className="sticky top-0 z-[10] " style={{ display: "none" }}>
       <div className="navbar w-full border-b bg-base-300">{p.children}</div>
     </div>
   );
@@ -61,7 +61,7 @@ export const Layout = (p: { children: React.ReactNode }) => {
     <>
       <div className="drawer">
         <input id="sidebar" type="checkbox" className="drawer-toggle" />
-        <div className="drawer-content flex flex-col">
+        <div className="drawer-content flex flex-col ">
           <NavBarContainer>
             <NavBar OpenDrawerWrapper={OpenDrawerWrapper}>
               <div>asd</div>
