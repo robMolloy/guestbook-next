@@ -8,6 +8,7 @@ export type TButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   size?: TDaisySize;
   outline?: boolean;
   wide?: boolean;
+  disabled?: boolean;
   children?: React.ReactNode;
 };
 
@@ -39,6 +40,7 @@ export const Button = (p: TButtonProps) => {
     wide,
     children,
     className = "",
+    disabled,
     ...other
   } = p;
   const variantClass = variantToVariantClassMap[variant];
@@ -49,6 +51,7 @@ export const Button = (p: TButtonProps) => {
   return (
     <button
       className={`btn ${variantClass} ${sizeClass} ${outlineClass} ${wideClass} ${className}`}
+      disabled={disabled}
       {...other}
     >
       {children}

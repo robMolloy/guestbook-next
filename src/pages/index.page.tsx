@@ -19,6 +19,8 @@ const Parent = () => {
     setStatus,
     imageDataUrls,
     addImageDataUrl,
+    selectedImageDataUrl,
+    setSelectedImageDataUrl,
     flashSignal,
     captureSignal,
     capture,
@@ -84,15 +86,21 @@ const Parent = () => {
               status === "sending" ||
               status === "success") && (
               <VideoStreamContainerItem>
-                <div
-                  className={`flex w-full h-full`}
-                  style={{
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    backgroundRepeat: "no-repeat",
-                    backgroundImage: `url('${imageDataUrls[0]}`,
-                  }}
-                />
+                {selectedImageDataUrl ? (
+                  <div
+                    className={`flex w-full h-full`}
+                    style={{
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      backgroundRepeat: "no-repeat",
+                      backgroundImage: `url('${selectedImageDataUrl}`,
+                    }}
+                  />
+                ) : (
+                  <div className="flex flex-1 justify-center items-center text-lg bg-base-300">
+                    Select your favourite image
+                  </div>
+                )}
               </VideoStreamContainerItem>
             )}
             {status === "sending" && (
@@ -120,7 +128,6 @@ const Parent = () => {
             )}
           </VideoStreamContainer>
         </div>
-        <br />
       </div>
       <br />
       <div className="">
@@ -128,10 +135,12 @@ const Parent = () => {
           <div className="flex justify-center gap-2">
             <Button
               variant="primary"
+              disabled={!selectedImageDataUrl}
               onClick={async () => {
+                if (!selectedImageDataUrl) return;
                 setStatus("sending");
                 await delay(1000);
-                setStatus(Math.random() > 0.8 ? "success" : "fail");
+                setStatus(Math.random() < 0.8 ? "success" : "fail");
               }}
             >
               Select
@@ -149,31 +158,29 @@ const Parent = () => {
         )}
         {status === "success" && (
           <div className="flex flex-col justify-center items-center">
-            <div>
-              <Button
-                variant="ghost"
-                outline
-                onClick={async () => setStatus("capturing")}
-              >
-                Start again
-              </Button>
-            </div>
+            <Button variant="ghost" outline onClick={async () => reset()}>
+              Start again
+            </Button>
           </div>
         )}
       </div>
       <br />
       <div className="flex-1">
         {(status === "capturing" || status === "selecting") && (
-          <div className="grid  h-full gap-5 grid-cols-2 mx-4">
-            {imageDataUrls.map((x, j) => (
+          <div className="grid h-full gap-5 grid-cols-2 mx-4">
+            {[0, 1, 2, 3].map((j) => (
               <div
-                key={`display-image-${x}`}
+                key={`display-image-${j}`}
                 className="border border-white w-full indicator"
               >
                 <span className="indicator-item badge badge-secondary h-6 w-6">
                   {j + 1}
                 </span>
                 <div
+                  onClick={() => {
+                    if (status === "selecting")
+                      setSelectedImageDataUrl(imageDataUrls[j]);
+                  }}
                   className="bg-base-300 w-full"
                   style={{
                     backgroundSize: "cover",

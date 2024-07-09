@@ -11,6 +11,9 @@ type TFlowStatus =
 
 export const useFlow = () => {
   const [imageDataUrls, setImageDataUrls] = useState<string[]>([]);
+  const [selectedImageDataUrl, setSelectedImageDataUrl] = useState<
+    string | undefined
+  >();
 
   const addImageDataUrl = (imageDataUrl: string) => {
     if (imageDataUrls.length >= 4) return;
@@ -30,6 +33,7 @@ export const useFlow = () => {
   const reset = () => {
     setStatus("ready");
     setImageDataUrls([]);
+    setSelectedImageDataUrl(undefined);
   };
 
   return {
@@ -38,6 +42,8 @@ export const useFlow = () => {
     imageDataUrls,
     setImageDataUrls,
     addImageDataUrl,
+    selectedImageDataUrl,
+    setSelectedImageDataUrl,
     flashSignal,
     captureSignal,
     capture,
