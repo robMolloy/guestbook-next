@@ -1,7 +1,10 @@
 import { createFirebaseUser } from "@/utils";
 import React, { useState } from "react";
+import { z } from "zod";
 
-type TRule = ({ validRegex: RegExp } | { invalidRegex: RegExp }) & { message: string };
+type TRule = ({ validSchema: z.ZodTypeAny } | { invalidSchema: z.ZodTypeAny }) & {
+  message: string;
+};
 type TRules = TRule[];
 
 const createRuleMap = <T extends { [k: string]: TRules }>(p: T) => {
@@ -9,35 +12,36 @@ const createRuleMap = <T extends { [k: string]: TRules }>(p: T) => {
 };
 
 const checkRules = (p: { rules: TRules; value: string }) => {
-  const userPasswordError = p.rules.find((x) => {
-    if ("validRegex" in x) return !x.validRegex.test(p.value);
-    return x.invalidRegex.test(p.value);
+  const errorRule = p.rules.find((x) => {
+    if ("validSchema" in x) return !x.validSchema.safeParse(p.value).success;
+    return x.invalidSchema.safeParse(p.value).success;
   });
-  return userPasswordError?.message ?? "";
+
+  return errorRule?.message ?? "";
 };
 
 const ruleMap = createRuleMap({
   password: [
     {
-      validRegex: /[!@#$%^&*(),.?":{}|<>]/,
+      validSchema: z.string().regex(/[!@#$%^&*(),.?":{}|<>]/),
       message: "string must contain a special character",
     },
     {
-      validRegex: /^.{7,}$/,
+      validSchema: z.string().min(8),
       message: "string must be longer than 8 characters",
     },
   ],
   email: [
     {
-      validRegex: /[!@#$%^&*(),.?":{}|<>]/,
+      validSchema: z.string(),
       message: "string must contain a special character",
     },
     {
-      validRegex: /^.{7,}$/,
+      validSchema: z.string().min(8),
       message: "string must be longer than 8 characters",
     },
     {
-      validRegex: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      validSchema: z.string().email(),
       message: "this does not appear to be an email",
     },
   ],
@@ -75,30 +79,31 @@ export const AuthCreateUserForm = (p: TAuthCreateUserFormProps) => {
       userPassword: userPassword,
     });
 
-    if (createResponse.success) {
-      p.onCreateUserSuccess();
-    } else {
-      p.onCreateUserFail();
+    if (createResponse.success) p.onCreateUserSuccess();
+    else p.onCreateUserFail();
 
-      if (createResponse.error.message) setFormErrorMessage(createResponse.error.message);
-    }
+    const errorMessage = createResponse?.error?.message;
+    setFormErrorMessage(errorMessage ?? "");
 
     setIsLoading(false);
   };
 
-  const checkUserEmailValid = () => {
-    const errMsg = checkRules({ rules: ruleMap.email, value: userEmail });
+  const checkUserEmailValid = (initValue?: string) => {
+    const value = initValue ?? userEmail;
+    const errMsg = checkRules({ rules: ruleMap.email, value });
     setUserEmailErrorMessage(errMsg);
   };
 
-  const checkUserPasswordValid = () => {
-    const errMsg = checkRules({ rules: ruleMap.password, value: userPassword });
+  const checkUserPasswordValid = (initValue?: string) => {
+    const value = initValue ?? userPassword;
+    const errMsg = checkRules({ rules: ruleMap.password, value });
     setUserPasswordErrorMessage(errMsg);
   };
 
-  const checkUserPasswordConfirmValid = () => {
+  const checkUserPasswordConfirmValid = (initValue?: string) => {
+    const value = initValue ?? userPasswordConfirm;
     const errMsg = (() => {
-      if (userPassword === userPasswordConfirm) return "";
+      if (userPassword === value) return "";
       return "password confirmation does not match password";
     })();
     setUserPasswordConfirmErrorMessage(errMsg);
@@ -125,8 +130,9 @@ export const AuthCreateUserForm = (p: TAuthCreateUserFormProps) => {
               !userEmailErrorMessage || "input-error"
             }`}
             onInput={(e) => {
-              setUserEmail((e.target as HTMLInputElement).value);
-              checkUserEmailValid();
+              const value = (e.target as HTMLInputElement).value;
+              setUserEmail(value);
+              checkUserEmailValid(value);
             }}
             value={userEmail}
           />
@@ -147,8 +153,9 @@ export const AuthCreateUserForm = (p: TAuthCreateUserFormProps) => {
               !userPasswordErrorMessage || "input-error"
             }`}
             onInput={(e) => {
-              setUserPassword((e.target as HTMLInputElement).value);
-              checkUserPasswordValid();
+              const value = (e.target as HTMLInputElement).value;
+              setUserPassword(value);
+              checkUserPasswordValid(value);
             }}
             value={userPassword}
           />
@@ -169,8 +176,9 @@ export const AuthCreateUserForm = (p: TAuthCreateUserFormProps) => {
               !userPasswordConfirmErrorMessage || "input-error"
             }`}
             onInput={(e) => {
-              setUserPasswordConfirm((e.target as HTMLInputElement).value);
-              checkUserPasswordConfirmValid();
+              const value = (e.target as HTMLInputElement).value;
+              setUserPasswordConfirm(value);
+              checkUserPasswordConfirmValid(value);
             }}
             value={userPasswordConfirm}
           />

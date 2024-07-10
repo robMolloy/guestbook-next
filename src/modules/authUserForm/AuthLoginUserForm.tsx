@@ -1,7 +1,7 @@
 import { loginFirebaseUser } from "@/utils";
 import React, { useState } from "react";
-
-type TRule = ({ validRegex: RegExp } | { invalidRegex: RegExp }) & {
+import { z } from "zod";
+type TRule = ({ validSchema: z.ZodTypeAny } | { invalidSchema: z.ZodTypeAny }) & {
   message: string;
 };
 type TRules = TRule[];
@@ -11,35 +11,36 @@ const createRuleMap = <T extends { [k: string]: TRules }>(p: T) => {
 };
 
 const checkRules = (p: { rules: TRules; value: string }) => {
-  const userPasswordError = p.rules.find((x) => {
-    if ("validRegex" in x) return !x.validRegex.test(p.value);
-    return x.invalidRegex.test(p.value);
+  const errorRule = p.rules.find((x) => {
+    if ("validSchema" in x) return !x.validSchema.safeParse(p.value).success;
+    return x.invalidSchema.safeParse(p.value).success;
   });
-  return userPasswordError?.message ?? "";
+
+  return errorRule?.message ?? "";
 };
 
 const ruleMap = createRuleMap({
   password: [
     {
-      validRegex: /[!@#$%^&*(),.?":{}|<>]/,
+      validSchema: z.string().regex(/[!@#$%^&*(),.?":{}|<>]/),
       message: "string must contain a special character",
     },
     {
-      validRegex: /^.{7,}$/,
+      validSchema: z.string().min(8),
       message: "string must be longer than 8 characters",
     },
   ],
   email: [
     {
-      validRegex: /[!@#$%^&*(),.?":{}|<>]/,
+      validSchema: z.string(),
       message: "string must contain a special character",
     },
     {
-      validRegex: /^.{7,}$/,
+      validSchema: z.string().min(8),
       message: "string must be longer than 8 characters",
     },
     {
-      validRegex: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      validSchema: z.string().email(),
       message: "this does not appear to be an email",
     },
   ],
@@ -79,13 +80,15 @@ export const AuthLoginUserForm = (p: TAuthLoginUserFormProps) => {
     setIsLoading(false);
   };
 
-  const checkUserEmailValid = () => {
-    const errMsg = checkRules({ rules: ruleMap.email, value: userEmail });
+  const checkUserEmailValid = (initValue?: string) => {
+    const value = initValue ?? userEmail;
+    const errMsg = checkRules({ rules: ruleMap.email, value });
     setUserEmailErrorMessage(errMsg);
   };
 
-  const checkUserPasswordValid = () => {
-    const errMsg = checkRules({ rules: ruleMap.password, value: userPassword });
+  const checkUserPasswordValid = (initValue?: string) => {
+    const value = initValue ?? userEmail;
+    const errMsg = checkRules({ rules: ruleMap.password, value });
     setUserPasswordErrorMessage(errMsg);
   };
 
@@ -99,11 +102,7 @@ export const AuthLoginUserForm = (p: TAuthLoginUserFormProps) => {
         )}
         <label className="form-control w-full">
           <div className="label">
-            <span
-              className={`label-text${
-                userEmailErrorMessage ? " bg-error" : ""
-              }`}
-            >
+            <span className={`label-text${userEmailErrorMessage ? "bg-error" : ""}`}>
               {userEmailErrorMessage || "Type your email"}
             </span>
           </div>
@@ -111,11 +110,12 @@ export const AuthLoginUserForm = (p: TAuthLoginUserFormProps) => {
             type="text"
             placeholder="email"
             className={`input input-bordered input-info w-full${
-              !userEmailErrorMessage || " input-error"
+              !userEmailErrorMessage || "input-error"
             }`}
             onInput={(e) => {
-              setUserEmail((e.target as HTMLInputElement).value);
-              checkUserEmailValid();
+              const value = (e.target as HTMLInputElement).value;
+              setUserEmail(value);
+              checkUserEmailValid(value);
             }}
             value={userEmail}
           />
@@ -125,11 +125,7 @@ export const AuthLoginUserForm = (p: TAuthLoginUserFormProps) => {
       <div>
         <label className="form-control">
           <div className="label">
-            <span
-              className={`label-text${
-                userPasswordErrorMessage ? " bg-error" : ""
-              }`}
-            >
+            <span className={`label-text${userPasswordErrorMessage ? "bg-error" : ""}`}>
               {userPasswordErrorMessage || "Type your password"}
             </span>
           </div>
@@ -137,11 +133,12 @@ export const AuthLoginUserForm = (p: TAuthLoginUserFormProps) => {
             type="password"
             placeholder="password"
             className={`input input-bordered input-info w-full${
-              !userPasswordErrorMessage || " input-error"
+              !userPasswordErrorMessage || "input-error"
             }`}
             onInput={(e) => {
-              setUserPassword((e.target as HTMLInputElement).value);
-              checkUserPasswordValid();
+              const value = (e.target as HTMLInputElement).value;
+              setUserPassword(value);
+              checkUserPasswordValid(value);
             }}
             value={userPassword}
           />
@@ -158,9 +155,7 @@ export const AuthLoginUserForm = (p: TAuthLoginUserFormProps) => {
         }}
       >
         Submit
-        {!!isLoading && (
-          <span className="loading loading-spinner loading-md"></span>
-        )}
+        {!!isLoading && <span className="loading loading-spinner loading-md"></span>}
       </button>
     </form>
   );
