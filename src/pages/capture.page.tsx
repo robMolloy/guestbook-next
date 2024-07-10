@@ -6,7 +6,7 @@ import {
   VideoStreamContainer,
   VideoStreamContainerItem,
 } from "@/modules/videoStream/VideoStreamContainer";
-import { useVideoStreamDimensionsStore } from "@/stores/useVideoStreamDimensionsStore";
+// import { useVideoStreamDimensionsStore } from "@/stores/useVideoStreamDimensionsStore";
 
 const delay = async (x: number) => {
   return new Promise((resolve) => {
@@ -32,7 +32,7 @@ const Parent = () => {
     <>
       {/* <pre>{JSON.stringify(videoStreamDimensionsStore, undefined, 2)}</pre> */}
       <main
-        className={`h-screen flex flex-col`}
+        className={`flex h-screen flex-col`}
         onClick={async () => {
           if (status !== "ready") return;
           setStatus("capturing");
@@ -52,14 +52,13 @@ const Parent = () => {
       >
         <br />
         <div className="flex-1">
-          <div className="prose w-full m-auto">
+          <div className="prose m-auto w-full">
             <h2 className="text-center">
               {status === "ready" && "Tap anywhere to begin"}
               {status === "capturing" && "Pose for 4 photos"}
               {status === "selecting" && "Select photo or discard"}
               {status === "sending" && "Please wait..."}
-              {status === "fail" &&
-                "Something has gone wrong, please try again"}
+              {status === "fail" && "Something has gone wrong, please try again"}
               {status === "success" && "Success! Please return the device"}
               {`: `}
               {status}
@@ -67,18 +66,14 @@ const Parent = () => {
           </div>
           <br />
 
-          <div className="flex justify-center items-center">
+          <div className="flex items-center justify-center">
             <VideoStreamContainer>
-              {(status === "ready" ||
-                status === "capturing" ||
-                status === "selecting") && (
+              {(status === "ready" || status === "capturing" || status === "selecting") && (
                 <VideoStreamContainerItem>
                   <Flash signal={flashSignal} />
                 </VideoStreamContainerItem>
               )}
-              {(status === "ready" ||
-                status === "capturing" ||
-                status === "selecting") && (
+              {(status === "ready" || status === "capturing" || status === "selecting") && (
                 <VideoStreamContainerItem>
                   <DumbVideoStream
                     signal={captureSignal}
@@ -88,13 +83,11 @@ const Parent = () => {
                 </VideoStreamContainerItem>
               )}
 
-              {(status === "selecting" ||
-                status === "sending" ||
-                status === "success") && (
+              {(status === "selecting" || status === "sending" || status === "success") && (
                 <VideoStreamContainerItem>
                   {selectedImageDataUrl ? (
                     <div
-                      className={`flex w-full h-full`}
+                      className={`flex h-full w-full`}
                       style={{
                         backgroundSize: "cover",
                         backgroundPosition: "center",
@@ -103,7 +96,7 @@ const Parent = () => {
                       }}
                     />
                   ) : (
-                    <div className="flex flex-1 justify-center items-center text-lg bg-base-300">
+                    <div className="flex flex-1 items-center justify-center bg-base-300 text-lg">
                       Select your favourite image
                     </div>
                   )}
@@ -112,7 +105,7 @@ const Parent = () => {
               {status === "sending" && (
                 <VideoStreamContainerItem>
                   <div
-                    className={`flex w-full h-full justify-center items-center bg-gray-400 opacity-60`}
+                    className={`flex h-full w-full items-center justify-center bg-gray-400 opacity-60`}
                   >
                     <span className="loading loading-spinner loading-lg" />
                   </div>
@@ -120,12 +113,9 @@ const Parent = () => {
               )}
               {status === "fail" && (
                 <VideoStreamContainerItem>
-                  <div className="flex justify-center w-full h-full items-center">
+                  <div className="flex h-full w-full items-center justify-center">
                     <div className="flex flex-col items-center gap-2">
-                      <Button
-                        variant="error"
-                        onClick={() => setStatus("selecting")}
-                      >
+                      <Button variant="error" onClick={() => setStatus("selecting")}>
                         Try again
                       </Button>
                     </div>
@@ -163,7 +153,7 @@ const Parent = () => {
             </div>
           )}
           {status === "success" && (
-            <div className="flex flex-col justify-center items-center">
+            <div className="flex flex-col items-center justify-center">
               <Button variant="ghost" outline onClick={async () => reset()}>
                 Start again
               </Button>
@@ -173,21 +163,15 @@ const Parent = () => {
         <br />
         <div className="flex-1">
           {(status === "capturing" || status === "selecting") && (
-            <div className="grid h-full gap-5 grid-cols-2 mx-4">
+            <div className="mx-4 grid h-full grid-cols-2 gap-5">
               {[0, 1, 2, 3].map((j) => (
-                <div
-                  key={`display-image-${j}`}
-                  className="border border-white w-full indicator"
-                >
-                  <span className="indicator-item badge badge-secondary h-6 w-6">
-                    {j + 1}
-                  </span>
+                <div key={`display-image-${j}`} className="indicator w-full border border-white">
+                  <span className="badge indicator-item badge-secondary h-6 w-6">{j + 1}</span>
                   <div
                     onClick={() => {
-                      if (status === "selecting")
-                        setSelectedImageDataUrl(imageDataUrls[j]);
+                      if (status === "selecting") setSelectedImageDataUrl(imageDataUrls[j]);
                     }}
-                    className="bg-base-300 w-full"
+                    className="w-full bg-base-300"
                     style={{
                       backgroundSize: "cover",
                       backgroundPosition: "center",

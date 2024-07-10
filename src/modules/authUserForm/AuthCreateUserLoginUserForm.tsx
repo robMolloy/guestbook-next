@@ -2,15 +2,7 @@ import React, { useState } from "react";
 import { AuthCreateUserForm, AuthLoginUserForm } from ".";
 import clsx from "clsx";
 
-export type TAuthCreateUserLoginUserForm = {
-  onValidLoginUserFormSubmit?: () => {};
-  onInvalidLoginUserFormSubmit?: () => {};
-};
-
-export const UserAuthCreateLoginForm = (p: TAuthCreateUserLoginUserForm) => {
-  const [formValues, setFormValues] = useState<{
-    [key: string]: string | undefined;
-  }>({});
+export const UserAuthCreateLoginForm = () => {
   const [mode, setMode] = useState<"login" | "create">("login");
   return (
     <div className="box card" style={{ boxShadow: "7px 7px 13px rgba(0, 0, 0, 0.5)" }}>
