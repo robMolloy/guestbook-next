@@ -1,3 +1,2 @@
-- TODO: Nu tab (or existing tab)
-- TODO: Item details
-- TODO: Giver's details
+- TODO use cloud functions to watch if an image is uploaded and create a dbEntry
+-
