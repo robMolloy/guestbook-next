@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "firebase:emulators-start": "firebase emulators:start",
+    "firebase:emulators-open-functions-debugger": "open -a \"Google Chrome\" chrome://inspect",
+    "firebase:emulators-start": "firebase emulators:start --inspect-functions",
     "dev:local": "NEXT_PUBLIC_USE_FIREBASE_EMULATOR=true next dev"
   },
   "dependencies": {

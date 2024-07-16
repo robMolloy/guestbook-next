@@ -3,6 +3,7 @@ import { initializeApp } from "firebase/app";
 import { connectFirestoreEmulator, getFirestore } from "firebase/firestore";
 import { connectStorageEmulator, getStorage } from "firebase/storage";
 import { connectAuthEmulator, getAuth } from "firebase/auth";
+import { connectFunctionsEmulator, getFunctions } from "firebase/functions";
 
 export const app = initializeApp({
   apiKey: "AIzaSyBov3LGp6m4JerjgJ_iUxMTErH3RFb70h8",
@@ -15,9 +16,11 @@ export const app = initializeApp({
 export const db = getFirestore(app);
 export const auth = getAuth();
 export const storage = getStorage(app);
+export const functions = getFunctions(app);
 
 if (process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATOR === "true") {
   connectFirestoreEmulator(db, "127.0.0.1", 8080);
   connectAuthEmulator(auth, "http://127.0.0.1:9099");
   connectStorageEmulator(storage, "127.0.0.1", 9199);
+  connectFunctionsEmulator(functions, "127.0.0.1", 5001);
 }
