@@ -1,23 +1,15 @@
 import { useSignal } from "@/utils/useSignal";
 import { useState } from "react";
 
-type TFlowStatus =
-  | "ready"
-  | "capturing"
-  | "selecting"
-  | "sending"
-  | "fail"
-  | "success";
+type TFlowStatus = "ready" | "capturing" | "selecting" | "sending" | "fail" | "success";
 
 export const useFlow = () => {
-  const [imageDataUrls, setImageDataUrls] = useState<string[]>([]);
-  const [selectedImageDataUrl, setSelectedImageDataUrl] = useState<
-    string | undefined
-  >();
+  const [selectableImageDataUrls, setSelectableImageDataUrls] = useState<string[]>([]);
+  const [selectedImageDataUrl, setSelectedImageDataUrl] = useState<string | undefined>();
 
-  const addImageDataUrl = (imageDataUrl: string) => {
-    if (imageDataUrls.length >= 4) return;
-    setImageDataUrls([...imageDataUrls, imageDataUrl]);
+  const addSelectableImageDataUrl = (imageDataUrl: string) => {
+    if (selectableImageDataUrls.length >= 4) return;
+    setSelectableImageDataUrls([...selectableImageDataUrls, imageDataUrl]);
   };
 
   const flashSignal = useSignal();
@@ -32,16 +24,16 @@ export const useFlow = () => {
 
   const reset = () => {
     setStatus("ready");
-    setImageDataUrls([]);
+    setSelectableImageDataUrls([]);
     setSelectedImageDataUrl(undefined);
   };
 
   return {
     status,
     setStatus,
-    imageDataUrls,
-    setImageDataUrls,
-    addImageDataUrl,
+    selectableImageDataUrls,
+    setSelectableImageDataUrls,
+    addSelectableImageDataUrl,
     selectedImageDataUrl,
     setSelectedImageDataUrl,
     flashSignal,

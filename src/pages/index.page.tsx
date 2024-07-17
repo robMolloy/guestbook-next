@@ -18,8 +18,8 @@ const Parent = () => {
   const {
     status,
     setStatus,
-    imageDataUrls,
-    addImageDataUrl,
+    selectableImageDataUrls,
+    addSelectableImageDataUrl,
     selectedImageDataUrl,
     setSelectedImageDataUrl,
     flashSignal,
@@ -77,7 +77,7 @@ const Parent = () => {
                 <VideoStreamContainerItem>
                   <DumbVideoStream
                     signal={captureSignal}
-                    onCapture={(x) => addImageDataUrl(x)}
+                    onCapture={(x) => addSelectableImageDataUrl(x)}
                     className={`${status === "selecting" ? "invisible" : ""}`}
                   />
                 </VideoStreamContainerItem>
@@ -169,14 +169,15 @@ const Parent = () => {
                   <span className="badge indicator-item badge-secondary h-6 w-6">{j + 1}</span>
                   <div
                     onClick={() => {
-                      if (status === "selecting") setSelectedImageDataUrl(imageDataUrls[j]);
+                      if (status === "selecting")
+                        setSelectedImageDataUrl(selectableImageDataUrls[j]);
                     }}
                     className="w-full bg-base-300"
                     style={{
                       backgroundSize: "cover",
                       backgroundPosition: "center",
                       backgroundRepeat: "no-repeat",
-                      backgroundImage: `url('${imageDataUrls[j]}`,
+                      backgroundImage: `url('${selectableImageDataUrls[j]}`,
                     }}
                   ></div>
                 </div>
