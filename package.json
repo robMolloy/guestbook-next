@@ -10,7 +10,8 @@
     "lint": "next lint",
     "firebase:emulators-open-functions-debugger": "open -a \"Google Chrome\" chrome://inspect",
     "firebase:emulators-start": "firebase emulators:start --inspect-functions",
-    "dev:local": "NEXT_PUBLIC_USE_FIREBASE_EMULATOR=true next dev"
+    "dev:local": "NEXT_PUBLIC_USE_FIREBASE_EMULATOR=true next dev",
+    "dev:be": "npm run firebase:emulators-start"
   },
   "dependencies": {
     "clsx": "^2.1.1",
