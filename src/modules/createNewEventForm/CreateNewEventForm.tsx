@@ -19,23 +19,27 @@ export const CreateNewEventForm = (p: { onCreateEventSuccess: (x: TEventDbEntry)
       const errors = parseResponse.error?.errors ?? [];
       const errorMsgs = errors.map((x) => x.message);
       const errorMsg = errorMsgs.find((x) => !!x);
+
       if (!parseResponse.success) throw new Error(errorMsg ?? "Unknown error");
 
       setEventNameErrorMessage("");
+      return { success: true } as const;
     } catch (e) {
       const error = e as { message: string };
+      console.error({ error });
 
       setEventNameErrorMessage(error.message);
+      return { success: false } as const;
     }
   };
 
   const onSubmit = async () => {
-    checkEventNameValid();
-    const safeStore = authStore.getSafeStore();
+    const parseCheckResponse = checkEventNameValid();
+    if (!parseCheckResponse.success) return;
 
+    const safeStore = authStore.getSafeStore();
     if (safeStore.status !== "logged_in") return;
     if (loading) return;
-    if (!!eventNameErrorMessage) return;
     setLoading(true);
 
     await (async () => {
