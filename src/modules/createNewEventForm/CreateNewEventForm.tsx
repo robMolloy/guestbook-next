@@ -67,14 +67,12 @@ export const CreateNewEventForm = (p: { onCreateEventSuccess: (x: TEventDbEntry)
             {eventNameErrorMessage || "Type the name of your new event"}
           </span>
         </div>
-        <div style={{ display: "flex", gap: "10px" }}>
+        <div className="flex gap-4">
           <input
             type="text"
             style={{ flex: "1" }}
             placeholder="event name"
-            className={`input input-bordered input-info w-full${
-              !eventNameErrorMessage || "input-error"
-            }`}
+            className={`input input-bordered w-full${!eventNameErrorMessage || "input-error"}`}
             onInput={(e) => {
               setEventName((e.target as HTMLInputElement).value);
               checkEventNameValid();
