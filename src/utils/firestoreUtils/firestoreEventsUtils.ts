@@ -9,6 +9,7 @@ import {
   query,
   serverTimestamp,
   setDoc,
+  where,
 } from "firebase/firestore";
 import { z } from "zod";
 
@@ -30,7 +31,8 @@ export const eventDbEntrySchema = z.object({
 export type TEventDbEntrySeed = z.infer<typeof eventDbEntrySeedSchema>;
 export type TEventDbEntry = z.infer<typeof eventDbEntrySchema>;
 
-export const readAllValidEventDbEntries = async (p?: {
+export const readAllValidEventDbEntries = async (p: {
+  uid: string;
   ignoreErrors?: boolean;
   orderKey?: keyof TEventDbEntry;
   orderDirection?: "desc" | "asc";
@@ -39,7 +41,9 @@ export const readAllValidEventDbEntries = async (p?: {
   const orderKey = p?.orderKey ?? "createdAt";
   const orderDirection = p?.orderDirection ?? "desc";
   try {
-    const querySnapshot = await getDocs(query(collectionRef, orderBy(orderKey, orderDirection)));
+    const querySnapshot = await getDocs(
+      query(collectionRef, orderBy(orderKey, orderDirection), where("uid", "==", p.uid)),
+    );
 
     const items: TEventDbEntry[] = [];
     querySnapshot.forEach((doc) => {
