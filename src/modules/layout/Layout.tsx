@@ -30,11 +30,9 @@ export const Layout = (p: { children: React.ReactNode }) => {
   const [clickHoldTimer, setClickHoldTimer] = useState<NodeJS.Timeout>();
 
   useEffect(() => {
-    console.log(`Layout.tsx:${/*LL*/ 33}`, { showNavStatus });
     if (showNavStatus === "inform") {
       setTimeout(() => {
-        console.log(`Layout.tsx:${/*LL*/ 35}`, { showNavStatus });
-        setShowNavStatus((x) => (showNavStatus === "inform" ? "hide" : x));
+        setShowNavStatus((x) => (x === "inform" ? "hide" : x));
       }, 5000);
     }
   }, [showNavStatus]);
