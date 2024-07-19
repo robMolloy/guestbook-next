@@ -21,9 +21,7 @@ export const DumbVideoStream = (p: TDumbVideoStreamProps) => {
   const store = useVideoStreamDimensionsStore();
 
   const videoElmRef = useRef<HTMLVideoElement>(null);
-  const [videoStream, setVideoStream] = useState<MediaStream | undefined>(
-    undefined
-  );
+  const [videoStream, setVideoStream] = useState<MediaStream | undefined>(undefined);
   useSignalListener({
     signal,
     onSignalChange: () => {
@@ -54,11 +52,11 @@ export const DumbVideoStream = (p: TDumbVideoStreamProps) => {
       videoStream: videoStreamResponse.data,
       idealDimensions: { width: store.width, height: store.height },
     });
-    if (!checkVideoStreamResponse.success)
-      console.error(checkVideoStreamResponse.error);
+    if (!checkVideoStreamResponse.success) console.error(checkVideoStreamResponse.error);
   };
 
   useEffect(() => {
+    console.log(`DumbVideoStream.tsx:${/*LL*/ 62}`);
     init();
   }, [store.aspectRatio, store.width]);
 
@@ -67,7 +65,7 @@ export const DumbVideoStream = (p: TDumbVideoStreamProps) => {
       ref={videoElmRef}
       autoPlay
       style={style}
-      className={`absolute transform scale-x-[-1] h-full w-full ${className}`}
+      className={`absolute h-full w-full scale-x-[-1] transform ${className}`}
       {...other}
     />
   );
