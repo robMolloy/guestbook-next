@@ -10,7 +10,6 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { uploadBackupImage, uploadSelectedImageAndConfirm } from "@/utils/firestoreUtils";
 import { useRouter } from "next/router";
 import { v4 as uuid } from "uuid";
-import { z } from "zod";
 
 const delay = async (x: number) => {
   return new Promise((resolve) => {
@@ -22,8 +21,7 @@ const Parent = () => {
   const router = useRouter();
   const authStore = useAuthStore();
   const safeAuthStore = authStore.getSafeStore();
-  const eventId = router.query.eventId;
-  const parseEventIdResponse = z.string().safeParse(eventId);
+  const eventId = router.query.eventId as string;
 
   const {
     status,
@@ -87,11 +85,11 @@ const Parent = () => {
                     signal={captureSignal}
                     onCapture={(x) => {
                       addSelectableImageDataUrl(x);
-                      if (parseEventIdResponse.success && safeAuthStore.status === "logged_in") {
+                      if (safeAuthStore.status === "logged_in") {
                         const newBackupImage = {
                           id: uuid(),
                           groupId,
-                          eventId: parseEventIdResponse.data,
+                          eventId,
                           uid: safeAuthStore.user.uid,
                           imageDataUrl: x,
                         };
@@ -156,14 +154,14 @@ const Parent = () => {
                 disabled={!selectedImageDataUrl}
                 onClick={async () => {
                   if (!selectedImageDataUrl) return;
-                  if (!parseEventIdResponse.success) return;
+
                   if (safeAuthStore.status !== "logged_in") return;
                   setStatus("sending");
                   await delay(1000);
                   const uploadResponse = await uploadSelectedImageAndConfirm({
                     id: uuid(),
                     groupId,
-                    eventId: parseEventIdResponse.data,
+                    eventId,
                     uid: safeAuthStore.user.uid,
                     imageDataUrl: selectedImageDataUrl,
                   });
