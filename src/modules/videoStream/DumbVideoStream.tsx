@@ -56,7 +56,6 @@ export const DumbVideoStream = (p: TDumbVideoStreamProps) => {
   };
 
   useEffect(() => {
-    console.log(`DumbVideoStream.tsx:${/*LL*/ 62}`);
     init();
   }, [store.aspectRatio, store.width]);
 
