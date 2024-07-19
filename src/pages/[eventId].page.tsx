@@ -22,6 +22,7 @@ export default function Page() {
       if (safeAuthStore.status !== "logged_in") return;
       const selectedImagesResponse = await readAllValidSelectedImageDbEntries({
         uid: safeAuthStore.user.uid,
+        eventId: eventId,
       });
       setSafeSelectedImages(selectedImagesResponse);
     })();
