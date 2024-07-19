@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { NavBar } from "./NavBar";
+import { NavBar, NavBarContainer, NavBarDropdown } from "./NavBar";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { logoutFirebaseUser } from "@/utils";
@@ -13,37 +13,9 @@ export type TPageLink = {
   horizontalClassName?: string;
 };
 
-const NavBarContainer = (p: { children: React.ReactNode }) => {
-  return (
-    <div className="sticky top-0">
-      <div className="navbar w-full border-b bg-base-300">{p.children}</div>
-    </div>
-  );
-};
-
 const ContainerWithSpotlightBackgroundTop = () => {
   return (
     <div className="absolute top-0 z-[-99] h-[90vh] min-w-full bg-gradient-to-tr from-base-100 via-base-100 via-75% to-primary sm:via-65%" />
-  );
-};
-
-const NavBarDropdown = (p: { children: React.ReactNode; label: string }) => {
-  return (
-    <div className="dropdown dropdown-end dropdown-bottom">
-      <div tabIndex={0} role="button" className="btn btn-ghost">
-        <div>{p.label} &#x25BC;</div>
-      </div>
-      <div
-        tabIndex={0}
-        className="z-99 dropdown-content mt-1 rounded-box border bg-base-100 p-0 shadow"
-        style={{ opacity: "0.94" }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="max-h-[75vh] min-w-52 rounded-box" onClick={(e) => e.stopPropagation()}>
-          {p.children}
-        </div>
-      </div>
-    </div>
   );
 };
 
@@ -103,12 +75,15 @@ export const Layout = (p: { children: React.ReactNode }) => {
               )
             }
             rightChildren={
-              <div className="flex flex-1 items-center justify-end">
-                <NavBarDropdown label="Controls">
-                  <div className="min-w-96 p-4" onClick={(e) => e.stopPropagation()}>
-                    <VideoStreamControls />
-                  </div>
-                </NavBarDropdown>
+              <div className="flex flex-1 items-center justify-end gap-2">
+                {safeAuthStore.status === "logged_in" &&
+                  router.pathname === `/[eventId]/capture` && (
+                    <NavBarDropdown label="Controls">
+                      <div className="min-w-96 p-4">
+                        <VideoStreamControls />
+                      </div>
+                    </NavBarDropdown>
+                  )}
                 {safeAuthStore.status === "logged_in" &&
                   router.pathname === `/[eventId]/capture` && (
                     <button
