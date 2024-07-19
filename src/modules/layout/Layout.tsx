@@ -31,9 +31,10 @@ export const Layout = (p: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (showNavStatus === "inform") {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         setShowNavStatus((x) => (x === "inform" ? "hide" : x));
       }, 5000);
+      return () => clearTimeout(timer);
     }
   }, [showNavStatus]);
 
