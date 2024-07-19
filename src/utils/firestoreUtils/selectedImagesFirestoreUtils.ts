@@ -137,7 +137,6 @@ export const readAllValidSelectedImageDbEntries = async (p: {
           return rtn;
         })(),
       };
-      console.log(`selectedImagesFirestoreUtils.ts:${/*LL*/ 84}`, { data });
       const parseResponse = selectedImageDbEntrySchema.safeParse(data);
       if (parseResponse.success) items.push(parseResponse.data);
       else {
