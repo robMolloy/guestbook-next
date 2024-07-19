@@ -21,7 +21,7 @@ const NavBarContainer = (p: { children: React.ReactNode }) => {
   );
 };
 
-const ContainerWithSpotlightBackgroundTop = (p: { children?: React.ReactNode }) => {
+const ContainerWithSpotlightBackgroundTop = () => {
   return (
     <div className="absolute top-0 z-[-99] h-[90vh] min-w-full bg-gradient-to-tr from-base-100 via-base-100 via-75% to-primary sm:via-65%" />
   );
