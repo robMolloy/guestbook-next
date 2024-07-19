@@ -26,7 +26,7 @@ export default function Page() {
         that event.
       </p>
 
-      <CreateNewEventForm onCreateEventSuccess={(x) => router.push(`/event/${x.id}/capture`)} />
+      <CreateNewEventForm onCreateEventSuccess={(x) => router.push(`/${x.id}/capture`)} />
 
       {safeEvents.success && (
         <div className="overflow-x-auto">
@@ -48,7 +48,7 @@ export default function Page() {
                   <td className="text-right">
                     <button
                       className="btn btn-primary btn-sm"
-                      onClick={() => router.push(`/${event.id}/manage`)}
+                      onClick={() => router.push(`/${event.id}/manage-event`)}
                     >
                       View Event &gt;
                     </button>
