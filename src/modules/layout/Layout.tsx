@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 import { NavBar } from "./NavBar";
+import { useRouter } from "next/router";
+import Link from "next/link";
+import { logoutFirebaseUser } from "@/utils";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export type TPageLink = {
   label: string;
@@ -26,8 +30,13 @@ const ContainerWithSpotlightBackgroundTop = (p: { children: React.ReactNode }) =
 };
 
 export const Layout = (p: { children: React.ReactNode }) => {
+  const router = useRouter();
   const [showNavStatus, setShowNavStatus] = useState<"show" | "hide" | "inform">("show");
   const [clickHoldTimer, setClickHoldTimer] = useState<NodeJS.Timeout>();
+  const eventId = router.query.eventId as string;
+
+  const authStore = useAuthStore();
+  const safeAuthStore = authStore.getSafeStore();
 
   useEffect(() => {
     if (showNavStatus === "inform") {
@@ -42,13 +51,60 @@ export const Layout = (p: { children: React.ReactNode }) => {
     <>
       {showNavStatus === "show" && (
         <NavBarContainer>
-          <NavBar>
-            <div className="flex gap-4">
-              <button className="btn btn-outline" onClick={() => setShowNavStatus("inform")}>
-                Hide Nav
-              </button>
-            </div>
-          </NavBar>
+          <NavBar
+            leftChildren={
+              <Link href="/" className="btn text-xl hover:underline">
+                guestbook
+              </Link>
+            }
+            bottomChildren={
+              safeAuthStore.status === "logged_in" && (
+                <div className="breadcrumbs ml-4 p-0 text-sm">
+                  <ul>
+                    <li>
+                      <Link className="hover:underline" href="/">
+                        Home
+                      </Link>
+                    </li>
+                    {router.pathname.startsWith(`/[eventId]`) && (
+                      <li>
+                        <Link className="hover:underline" href={`/${eventId}`}>
+                          Manage Event
+                        </Link>
+                      </li>
+                    )}
+                    {router.pathname === `/[eventId]/capture` && (
+                      <li>
+                        <Link className="hover:underline" href={`/${eventId}/capture`}>
+                          Capture
+                        </Link>
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              )
+            }
+            rightChildren={
+              <div className="flex flex-1 justify-end">
+                {safeAuthStore.status === "logged_in" &&
+                  router.pathname === `/[eventId]/capture` && (
+                    <button className="btn btn-primary" onClick={() => setShowNavStatus("inform")}>
+                      Hide Nav
+                    </button>
+                  )}
+                {safeAuthStore.status === "logged_in" &&
+                  router.pathname !== `/[eventId]/capture` && (
+                    <Link
+                      className="btn hover:underline"
+                      href="/"
+                      onClick={() => logoutFirebaseUser()}
+                    >
+                      Log Out
+                    </Link>
+                  )}
+              </div>
+            }
+          />
         </NavBarContainer>
       )}
       {showNavStatus !== "show" && (
