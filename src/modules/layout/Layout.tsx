@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { logoutFirebaseUser } from "@/utils";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { VideoStreamControls } from "../videoStream";
 
 export type TPageLink = {
   label: string;
@@ -14,7 +15,7 @@ export type TPageLink = {
 
 const NavBarContainer = (p: { children: React.ReactNode }) => {
   return (
-    <div className="sticky top-0 z-[10]">
+    <div className="sticky top-0 z-10">
       <div className="navbar w-full border-b bg-base-300">{p.children}</div>
     </div>
   );
@@ -25,6 +26,23 @@ const ContainerWithSpotlightBackgroundTop = (p: { children: React.ReactNode }) =
     <div className="relative min-h-[50vh]">
       <div className="absolute top-0 z-[-1] min-h-[90vh] min-w-full bg-gradient-to-tr from-base-100 via-base-100 via-75% to-primary sm:via-65%"></div>
       {p.children}
+    </div>
+  );
+};
+
+const NavBarDropdown = (p: { children: React.ReactNode; label: string }) => {
+  return (
+    <div className="dropdown dropdown-end dropdown-bottom">
+      <div tabIndex={0} role="button" className="btn btn-ghost">
+        <div>{p.label} &#x25BC;</div>
+      </div>
+      <div
+        tabIndex={0}
+        className="dropdown-content z-[1] mt-1 rounded-box border bg-base-100 p-0 shadow"
+        style={{ opacity: "0.94" }}
+      >
+        <div className="max-h-[75vh] min-w-52 rounded-box">{p.children}</div>
+      </div>
     </div>
   );
 };
@@ -85,17 +103,25 @@ export const Layout = (p: { children: React.ReactNode }) => {
               )
             }
             rightChildren={
-              <div className="flex flex-1 justify-end">
+              <div className="flex flex-1 items-center justify-end">
+                <NavBarDropdown label="Controls">
+                  <div className="z-50 min-w-96 p-4" onClick={(e) => e.stopPropagation()}>
+                    <VideoStreamControls />
+                  </div>
+                </NavBarDropdown>
                 {safeAuthStore.status === "logged_in" &&
                   router.pathname === `/[eventId]/capture` && (
-                    <button className="btn btn-primary" onClick={() => setShowNavStatus("inform")}>
+                    <button
+                      className="btn btn-primary btn-sm"
+                      onClick={() => setShowNavStatus("inform")}
+                    >
                       Hide Nav
                     </button>
                   )}
                 {safeAuthStore.status === "logged_in" &&
                   router.pathname !== `/[eventId]/capture` && (
                     <Link
-                      className="btn hover:underline"
+                      className="btn btn-sm hover:underline"
                       href="/"
                       onClick={() => logoutFirebaseUser()}
                     >
