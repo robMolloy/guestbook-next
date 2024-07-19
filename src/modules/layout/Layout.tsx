@@ -15,18 +15,15 @@ export type TPageLink = {
 
 const NavBarContainer = (p: { children: React.ReactNode }) => {
   return (
-    <div className="sticky top-0 z-10">
+    <div className="sticky top-0">
       <div className="navbar w-full border-b bg-base-300">{p.children}</div>
     </div>
   );
 };
 
-const ContainerWithSpotlightBackgroundTop = (p: { children: React.ReactNode }) => {
+const ContainerWithSpotlightBackgroundTop = (p: { children?: React.ReactNode }) => {
   return (
-    <div className="relative min-h-[50vh]">
-      <div className="absolute top-0 z-[-1] min-h-[90vh] min-w-full bg-gradient-to-tr from-base-100 via-base-100 via-75% to-primary sm:via-65%"></div>
-      {p.children}
-    </div>
+    <div className="absolute top-0 z-[-99] h-[90vh] min-w-full bg-gradient-to-tr from-base-100 via-base-100 via-75% to-primary sm:via-65%" />
   );
 };
 
@@ -38,10 +35,13 @@ const NavBarDropdown = (p: { children: React.ReactNode; label: string }) => {
       </div>
       <div
         tabIndex={0}
-        className="dropdown-content z-[1] mt-1 rounded-box border bg-base-100 p-0 shadow"
+        className="z-99 dropdown-content mt-1 rounded-box border bg-base-100 p-0 shadow"
         style={{ opacity: "0.94" }}
+        onClick={(e) => e.stopPropagation()}
       >
-        <div className="max-h-[75vh] min-w-52 rounded-box">{p.children}</div>
+        <div className="max-h-[75vh] min-w-52 rounded-box" onClick={(e) => e.stopPropagation()}>
+          {p.children}
+        </div>
       </div>
     </div>
   );
@@ -105,7 +105,7 @@ export const Layout = (p: { children: React.ReactNode }) => {
             rightChildren={
               <div className="flex flex-1 items-center justify-end">
                 <NavBarDropdown label="Controls">
-                  <div className="z-50 min-w-96 p-4" onClick={(e) => e.stopPropagation()}>
+                  <div className="min-w-96 p-4" onClick={(e) => e.stopPropagation()}>
                     <VideoStreamControls />
                   </div>
                 </NavBarDropdown>
@@ -135,7 +135,7 @@ export const Layout = (p: { children: React.ReactNode }) => {
       )}
       {showNavStatus !== "show" && (
         <div
-          className="absolute left-0 right-0 z-50"
+          className="absolute left-0 right-0"
           onMouseDown={() => setClickHoldTimer(setTimeout(() => setShowNavStatus("show"), 2000))}
           onMouseUp={() => clearTimeout(clickHoldTimer)}
         >
@@ -147,7 +147,8 @@ export const Layout = (p: { children: React.ReactNode }) => {
           {showNavStatus === "hide" && <br />}
         </div>
       )}
-      <ContainerWithSpotlightBackgroundTop>{p.children}</ContainerWithSpotlightBackgroundTop>
+      {p.children}
+      <ContainerWithSpotlightBackgroundTop></ContainerWithSpotlightBackgroundTop>
     </>
   );
 };

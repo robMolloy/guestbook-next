@@ -1,9 +1,6 @@
 import { TAspectRatio } from "@/stores/useVideoStreamDimensionsStore";
 
-export const getVideoStream = async (p: {
-  aspectRatio: TAspectRatio;
-  idealWidth: number;
-}) => {
+export const getVideoStream = async (p: { aspectRatio: TAspectRatio; idealWidth: number }) => {
   const constraints = {
     video: {
       width: { ideal: p.idealWidth },
@@ -13,9 +10,7 @@ export const getVideoStream = async (p: {
   return navigator.mediaDevices.getUserMedia(constraints);
 };
 
-export const safeGetVideoStream = async (
-  p: Parameters<typeof getVideoStream>[0]
-) => {
+export const safeGetVideoStream = async (p: Parameters<typeof getVideoStream>[0]) => {
   try {
     return { success: true, data: await getVideoStream(p) } as const;
   } catch (e) {
@@ -63,14 +58,14 @@ export const checkVideoStream = (p: {
     return {
       success: false,
       error: {
-        message: `seems like there's a mismatch between the ideal height and the actual height; ideal:${p.idealDimensions.height}, actual: ${height}`,
+        message: `seems like there's a mismatch between the ideal height and the actual height; ideal:${p.idealDimensions.height}, actual: ${height}, ratio: ${heightRatio}`,
       },
     } as const;
   if (widthRatio < 0.95 || widthRatio > 1.05)
     return {
       success: false,
       error: {
-        message: `seems like there's a mismatch between the ideal width and the actual width; ideal:${p.idealDimensions.height}, actual: ${height}`,
+        message: `seems like there's a mismatch between the ideal width and the actual width; ideal:${p.idealDimensions.width}, actual: ${width}, widthRatio: ${widthRatio}`,
       },
     } as const;
 
@@ -112,9 +107,7 @@ export const checkVideoElement = (p: {
   return { success: true } as const;
 };
 
-export const getImageDataUrlFromVideoElement = (p: {
-  videoElement: HTMLVideoElement;
-}) => {
+export const getImageDataUrlFromVideoElement = (p: { videoElement: HTMLVideoElement }) => {
   const canvas = document.createElement("canvas");
 
   const width = true ? p.videoElement.videoWidth : 1080;

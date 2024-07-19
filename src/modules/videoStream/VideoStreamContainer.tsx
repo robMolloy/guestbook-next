@@ -13,7 +13,7 @@ export const VideoStreamContainer = (p: TVideoStreamContainerProps) => {
   return (
     <div
       className={`relative h-[40vh] ${p.className}`}
-      style={{ width: `${40 * store.calculateRatio()}vh` }}
+      style={{ width: `${40 * store.calculateRatio()}vh`, zIndex: -1 }}
       onClick={p.onClick}
     >
       {p.children}
@@ -29,11 +29,7 @@ export const VideoStreamContainerItem = (p: {
 }) => {
   const { style = {} } = p;
   return (
-    <div
-      className={`absolute flex h-full w-full ${p.className}`}
-      style={style}
-      onClick={p.onClick}
-    >
+    <div className={`absolute flex h-full w-full ${p.className}`} style={style} onClick={p.onClick}>
       {p.children}
     </div>
   );

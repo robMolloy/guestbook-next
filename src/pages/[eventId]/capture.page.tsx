@@ -67,18 +67,12 @@ const Parent = () => {
               {status === "sending" && "Please wait..."}
               {status === "fail" && "Something has gone wrong, please try again"}
               {status === "success" && "Success! Please return the device"}
-              {`: ${status}`}
             </h2>
           </div>
           <br />
 
           <div className="flex items-center justify-center">
             <VideoStreamContainer>
-              {(status === "ready" || status === "capturing" || status === "selecting") && (
-                <VideoStreamContainerItem>
-                  <Flash signal={flashSignal} />
-                </VideoStreamContainerItem>
-              )}
               {(status === "ready" || status === "capturing" || status === "selecting") && (
                 <VideoStreamContainerItem>
                   <DumbVideoStream
@@ -139,6 +133,11 @@ const Parent = () => {
                       </Button>
                     </div>
                   </div>
+                </VideoStreamContainerItem>
+              )}
+              {(status === "ready" || status === "capturing" || status === "selecting") && (
+                <VideoStreamContainerItem>
+                  <Flash signal={flashSignal} />
                 </VideoStreamContainerItem>
               )}
             </VideoStreamContainer>

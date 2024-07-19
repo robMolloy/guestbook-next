@@ -25,7 +25,7 @@ export const Flash = (p: { signal: ReturnType<typeof useSignal>; children?: Reac
 
   return (
     <>
-      <div className="relative z-[99] h-full w-full">
+      <div className="relative h-full w-full">
         {flashes
           .filter((flash) => !finishedFlashes.includes(flash))
           .map((x) => (
