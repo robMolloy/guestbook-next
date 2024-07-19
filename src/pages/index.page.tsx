@@ -1,12 +1,44 @@
 import { Typography } from "@/components";
 import { CreateNewEventForm } from "@/modules/createNewEventForm/CreateNewEventForm";
-import { readAllValidEventDbEntries } from "@/utils/firestoreUtils";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { TEventDbEntry, readAllValidEventDbEntries } from "@/utils/firestoreUtils";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
+const DisplayEventsTable = (p: { data: TEventDbEntry[]; eventPageUrlPrefix: string }) => {
+  return (
+    <table className="table">
+      <thead>
+        <tr>
+          <th className="pl-0">#</th>
+          <th className="w-56">Name</th>
+          <th>Created At</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {p.data.map((event, j) => (
+          <tr key={event.id}>
+            <th className="pl-0">{j + 1}</th>
+            <td>{event.name}</td>
+            <td>{event.createdAt}</td>
+            <td className="pr-0 text-right">
+              <Link className="btn btn-primary btn-sm" href={`${p.eventPageUrlPrefix}${event.id}`}>
+                View Event &gt;
+              </Link>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+};
+
 export default function Page() {
   const router = useRouter();
+  const authStore = useAuthStore();
+  const safeAuthStore = authStore.getSafeStore();
 
   const [safeEvents, setSafeEvents] = useState<
     Awaited<ReturnType<typeof readAllValidEventDbEntries>> | { success?: undefined }
@@ -14,7 +46,8 @@ export default function Page() {
 
   useEffect(() => {
     (async () => {
-      setSafeEvents(await readAllValidEventDbEntries());
+      if (safeAuthStore.status === "logged_in")
+        setSafeEvents(await readAllValidEventDbEntries({ uid: safeAuthStore.user.uid }));
     })();
   }, []);
   return (
@@ -28,34 +61,7 @@ export default function Page() {
 
       <CreateNewEventForm onCreateEventSuccess={(x) => router.push(`/${x.id}/capture`)} />
 
-      {safeEvents.success && (
-        <div className="overflow-x-auto">
-          <table className="table">
-            <thead>
-              <tr>
-                <th># </th>
-                <th className="w-56">Name</th>
-                <th>Created At</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {safeEvents.data.map((event, j) => (
-                <tr key={event.id}>
-                  <th>{j + 1}</th>
-                  <td>{event.name}</td>
-                  <td>{event.createdAt}</td>
-                  <td className="text-right">
-                    <Link className="btn btn-primary btn-sm" href={`/${event.id}`}>
-                      View Event &gt;
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      {safeEvents.success && <DisplayEventsTable data={safeEvents.data} eventPageUrlPrefix="/" />}
     </Typography>
   );
 }
