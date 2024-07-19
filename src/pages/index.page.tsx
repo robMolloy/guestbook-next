@@ -1,6 +1,7 @@
 import { Typography } from "@/components";
 import { CreateNewEventForm } from "@/modules/createNewEventForm/CreateNewEventForm";
 import { readAllValidEventDbEntries } from "@/utils/firestoreUtils";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -13,12 +14,11 @@ export default function Page() {
 
   useEffect(() => {
     (async () => {
-      const l = await readAllValidEventDbEntries();
-      setSafeEvents(l);
+      setSafeEvents(await readAllValidEventDbEntries());
     })();
   }, []);
   return (
-    <Typography>
+    <Typography fullPage>
       <h2>Events</h2>
       <p>
         Welcome to your events page. Here you can start a new event or view an event that you have
@@ -46,12 +46,9 @@ export default function Page() {
                   <td>{event.name}</td>
                   <td>{event.createdAt}</td>
                   <td className="text-right">
-                    <button
-                      className="btn btn-primary btn-sm"
-                      onClick={() => router.push(`/${event.id}/manage-event`)}
-                    >
+                    <Link className="btn btn-primary btn-sm" href={`/${event.id}`}>
                       View Event &gt;
-                    </button>
+                    </Link>
                   </td>
                 </tr>
               ))}
