@@ -13,7 +13,8 @@ import { v4 as uuid } from "uuid";
 
 const delay = async (x: number) => {
   return new Promise((resolve) => {
-    setTimeout(() => resolve(true), x);
+    const isDev = process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATOR === "true";
+    setTimeout(() => resolve(true), x / (isDev ? 4 : 1));
   });
 };
 
