@@ -140,7 +140,7 @@ export const readAllValidSelectedImageDbEntries = async (p: {
       const parseResponse = selectedImageDbEntrySchema.safeParse(data);
       if (parseResponse.success) items.push(parseResponse.data);
       else {
-        console.log({ parseResponse });
+        console.error({ parseResponse });
         const json = JSON.stringify(data);
         const errorMessage = `an item did not have the correct data structure: ${json}`;
         if (!ignoreErrors) throw new Error(errorMessage);

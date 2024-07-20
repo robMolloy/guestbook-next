@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { v4 as uuid } from "uuid";
 import { z } from "zod";
 
+const eventNameSchema = z.string().min(7).max(20);
+
 export const CreateNewEventForm = (p: { onCreateEventSuccess: (x: TEventDbEntry) => void }) => {
   const [loading, setLoading] = useState(false);
   const [formErrorMessage, setFormErrorMessage] = useState("");
@@ -12,21 +14,20 @@ export const CreateNewEventForm = (p: { onCreateEventSuccess: (x: TEventDbEntry)
 
   const authStore = useAuthStore();
 
-  const checkEventNameValid = () => {
+  const checkEventNameValid = (initEventName?: string) => {
+    const newEventName = initEventName ? initEventName : eventName;
     try {
-      const schema = z.string().min(7).max(20);
-      const parseResponse = schema.safeParse(eventName);
-      const errors = parseResponse.error?.errors ?? [];
-      const errorMsgs = errors.map((x) => x.message);
-      const errorMsg = errorMsgs.find((x) => !!x);
+      const parseResponse = eventNameSchema.safeParse(newEventName);
 
-      if (!parseResponse.success) throw new Error(errorMsg ?? "Unknown error");
+      if (!parseResponse.success) {
+        const errorMsg = parseResponse.error.errors.find((x) => !!x)?.message;
+        throw new Error(errorMsg ?? "Unknown error");
+      }
 
       setEventNameErrorMessage("");
       return { success: true } as const;
     } catch (e) {
       const error = e as { message: string };
-      console.error({ error });
 
       setEventNameErrorMessage(error.message);
       return { success: false } as const;
@@ -49,7 +50,6 @@ export const CreateNewEventForm = (p: { onCreateEventSuccess: (x: TEventDbEntry)
 
       if (!createResponse.success) return setFormErrorMessage(createResponse.error.message);
       p.onCreateEventSuccess(createResponse.data);
-      console.log("success");
     })();
 
     setLoading(false);
@@ -74,8 +74,9 @@ export const CreateNewEventForm = (p: { onCreateEventSuccess: (x: TEventDbEntry)
             placeholder="event name"
             className={`input input-bordered w-full${!eventNameErrorMessage || "input-error"}`}
             onInput={(e) => {
-              setEventName((e.target as HTMLInputElement).value);
-              checkEventNameValid();
+              const value = (e.target as HTMLInputElement).value;
+              setEventName(value);
+              checkEventNameValid(value);
             }}
             value={eventName}
           />
