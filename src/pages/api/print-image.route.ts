@@ -2,6 +2,7 @@ import { selectedImageDbEntrySchema } from "@/utils/firestoreUtils";
 import type { NextApiRequest, NextApiResponse } from "next";
 import * as fs from "fs";
 import { PDFDocument } from "pdf-lib";
+import { v4 as uuid } from "uuid";
 
 type Data = {
   name: string;
@@ -71,7 +72,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         safeCreateDir("images");
         await createPdfFromBase64({
           base64Data,
-          pdfPath: `images/selected-image-${docParseResponse.data.id}.pdf`,
+          pdfPath: `images/selected-image-${docParseResponse.data.id}-${uuid()}.pdf`,
         });
         // printPdf
       }
