@@ -7,32 +7,31 @@ import {
 } from "@/utils/firestoreUtils";
 import dayjs from "dayjs";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { v4 as uuid } from "uuid";
 
 const printImage = (doc: TSelectedImageDbEntry) => {
   const options = { method: "POST", body: JSON.stringify(doc) };
   fetch("http://localhost:3000/api/print-image", options);
 };
 
-const Modal = (p: { buttonLabel: string; modalId: string; children: React.ReactNode }) => {
+const useModalControls = () => {
+  const [modalId] = useState(uuid());
+  const showModal = () => {
+    const modalElm = document.getElementById(modalId) as HTMLDialogElement | undefined;
+    modalElm?.showModal();
+  };
+  return { showModal, modalId };
+};
+
+const Modal = (p: { modalId: string; children: React.ReactNode }) => {
   return (
-    <>
-      <button
-        className="btn btn-info"
-        onClick={() => {
-          const deleteModal = document.getElementById(p.modalId) as HTMLDialogElement | undefined;
-          deleteModal?.showModal();
-        }}
-      >
-        {p.buttonLabel}
-      </button>
-      <dialog id={p.modalId} className="modal">
-        <div className="modal-box">{p.children}</div>
-        <form method="dialog" className="modal-backdrop">
-          <button>close</button>
-        </form>
-      </dialog>
-    </>
+    <dialog id={p.modalId} className="modal">
+      <div className="modal-box">{p.children}</div>
+      <form method="dialog" className="modal-backdrop">
+        <button>close</button>
+      </form>
+    </dialog>
   );
 };
 
@@ -43,8 +42,9 @@ const DisplaySelectedImageModal = (p: {
   onPrint: (x: TSelectedImageDbEntry) => void;
 }) => {
   const x = p.selectedImage;
-  const deleteModalId = `modal-delete-${x.id}`;
-  const printModalId = `modal-print-${x.id}`;
+
+  const deleteModalControls = useModalControls();
+  const printModalControls = useModalControls();
   return (
     <div tabIndex={0} className="collapse bg-neutral shadow-lg">
       <input type="checkbox" />
@@ -57,7 +57,17 @@ const DisplaySelectedImageModal = (p: {
             <img src={x.downloadUrl} className="m-0" />
           </div>
           <br />
-          <Modal buttonLabel="Delete" modalId={deleteModalId}>
+          <div className="flex gap-4">
+            {p.showPrintButton && (
+              <button className="btn btn-outline" onClick={() => printModalControls.showModal()}>
+                Print
+              </button>
+            )}
+            <button className="btn btn-error" onClick={() => deleteModalControls.showModal()}>
+              Delete
+            </button>
+          </div>
+          <Modal modalId={deleteModalControls.modalId}>
             <p className="py-4">Are you sure you want to delete this image?</p>
             <form method="dialog" className="flex gap-4">
               <button className="btn btn-error" onClick={async () => p.onDelete(x)}>
@@ -66,17 +76,15 @@ const DisplaySelectedImageModal = (p: {
               <button className="btn btn-outline">Cancel</button>
             </form>
           </Modal>
-          {p.showPrintButton && (
-            <Modal buttonLabel="Print" modalId={printModalId}>
-              <p className="py-4">Are you sure you want to print this image?</p>
-              <form method="dialog" className="flex gap-4">
-                <button className="btn btn-error" onClick={async () => p.onPrint(x)}>
-                  Yes
-                </button>
-                <button className="btn btn-outline">Cancel</button>
-              </form>
-            </Modal>
-          )}
+          <Modal modalId={printModalControls.modalId}>
+            <p className="py-4">Are you sure you want to print this image?</p>
+            <form method="dialog" className="flex gap-4">
+              <button className="btn btn-error" onClick={async () => p.onPrint(x)}>
+                Yes
+              </button>
+              <button className="btn btn-outline">Cancel</button>
+            </form>
+          </Modal>
         </div>
       }
     </div>
@@ -98,6 +106,11 @@ export default function Page() {
 
   const [isManualPrintingEnabled, setIsManualPrintingEnabled] = useState(false);
   const [isPrintImages, setIsPrintImages] = useState(false);
+  const isPrintImagesRef = useRef(isPrintImages);
+
+  useEffect(() => {
+    isPrintImagesRef.current = isPrintImages;
+  }, [isPrintImages]);
 
   useEffect(() => {
     if (safeAuthStore.status !== "logged_in") return;
@@ -108,8 +121,8 @@ export default function Page() {
       onNewSnapshot: (docs) => {
         setSelectedImages(docs);
       },
-      onAddedDoc: (doc) => {
-        if (isPrintImages) printImage(doc);
+      onAddedDoc: (doc: TSelectedImageDbEntry) => {
+        if (isPrintImagesRef.current) printImage(doc);
       },
     });
     return () => unsub();
@@ -132,7 +145,7 @@ export default function Page() {
         <div className="w-64">
           <div className="form-control">
             <label className="label cursor-pointer">
-              <span className="label-text">Is manual printing enabled?</span>
+              <span className="label-text">Enable manual printing?</span>
               <input
                 type="checkbox"
                 className="toggle"
@@ -171,9 +184,7 @@ export default function Page() {
                   if (!deleteResponse.success) return;
                   setDeletedSelectedImageIds([...deletedSelectedImageIds, x.id]);
                 }}
-                onPrint={async (x) => {
-                  printImage(x);
-                }}
+                onPrint={async (x) => printImage(x)}
               />
             </React.Fragment>
           );
