@@ -87,6 +87,7 @@ export default function Page() {
   return (
     <Typography fullPage>
       <h2>Manage Event</h2>
+
       <p>
         This page allows you to manage any open events. View any photos or continue with your event
         by clicking the button below.
