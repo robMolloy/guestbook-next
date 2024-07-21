@@ -6,6 +6,8 @@ import {
   doc,
   getDoc,
   getDocs,
+  onSnapshot,
+  orderBy,
   query,
   serverTimestamp,
   setDoc,
@@ -19,6 +21,8 @@ import dayjs from "dayjs";
 
 const collectionName = "selectedImages";
 const collectionRef = collection(db, collectionName);
+
+const firestoreTimestamp = z.object({ seconds: z.number() });
 
 export const selectedImageUploadSeedSchema = z.object({
   id: z.string(),
@@ -42,8 +46,8 @@ export const selectedImageDbEntrySchema = z.object({
   uid: z.string(),
   storagePath: z.string(),
   downloadUrl: z.string(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
+  createdAt: firestoreTimestamp,
+  updatedAt: firestoreTimestamp,
 });
 export const selectedImageDetails = z.object({
   id: z.string(),
@@ -159,6 +163,58 @@ export const readAllValidSelectedImageDbEntries = async (p: {
     console.error(error);
     return { success: false, error } as const;
   }
+};
+
+export const watchValidSelectedImageDbEntries = (p: {
+  uid: string;
+  eventId: string;
+  orderKey?: keyof TSelectedImageDbEntry;
+  orderDirection?: "desc" | "asc";
+  onNewSnapshot?: (x: TSelectedImageDbEntry[]) => void;
+  onSnapshotSummary?: (x: {
+    all: TSelectedImageDbEntry[] | undefined;
+    added: TSelectedImageDbEntry[];
+  }) => void;
+  onAddedDoc?: (x: TSelectedImageDbEntry) => void;
+}) => {
+  const orderKey = p.orderKey ?? "createdAt";
+  const orderDirection = p.orderDirection ?? "desc";
+  const q1 = query(
+    collectionRef,
+    and(where("uid", "==", p.uid), where("eventId", "==", p.eventId)),
+    orderBy(orderKey, orderDirection),
+  );
+  let first = true;
+  const unsub = onSnapshot(q1, (snapshot) => {
+    const snapshotSummary = {
+      all: undefined as TSelectedImageDbEntry[] | undefined,
+      added: [] as TSelectedImageDbEntry[],
+    };
+    const docs = snapshot.docs
+      .map((doc) => ({ id: doc.id, ...doc.data() }))
+      .map((x) => selectedImageDbEntrySchema.safeParse(x))
+      .map((x) => {
+        if (!x.success) console.error(x.error);
+        if (x.success) return x.data;
+      })
+      .filter((x) => !!x) as TSelectedImageDbEntry[];
+    if (p.onNewSnapshot) p.onNewSnapshot(docs);
+    snapshotSummary.all = docs;
+
+    snapshot.docChanges().forEach((change) => {
+      if (change.type === "added") {
+        const newDoc = { id: change.doc.id, ...change.doc.data() };
+        const parseResponse = selectedImageDbEntrySchema.safeParse(newDoc);
+        if (!parseResponse.success) return;
+        if (!first && p.onAddedDoc) p.onAddedDoc(parseResponse.data);
+        if (!first) snapshotSummary.added.push(parseResponse.data);
+      }
+    });
+    if (p.onSnapshotSummary) p.onSnapshotSummary(snapshotSummary);
+
+    first = false;
+  });
+  return unsub;
 };
 
 export const deleteSelectedImageDbEntry = async (p: { id: string; uid: string }) => {
