@@ -105,12 +105,8 @@ export default function Page() {
   const [deletedSelectedImageIds, setDeletedSelectedImageIds] = useState<string[]>([]);
 
   const [isManualPrintingEnabled, setIsManualPrintingEnabled] = useState(false);
-  const [isPrintImages, setIsPrintImages] = useState(false);
-  const isPrintImagesRef = useRef(isPrintImages);
-
-  useEffect(() => {
-    isPrintImagesRef.current = isPrintImages;
-  }, [isPrintImages]);
+  // use useRef instead of useState to fix stale-state-useEffect issue
+  const isPrintImagesRef = useRef(false);
 
   useEffect(() => {
     if (safeAuthStore.status !== "logged_in") return;
@@ -160,8 +156,8 @@ export default function Page() {
               <input
                 type="checkbox"
                 className="toggle"
-                defaultChecked={isPrintImages}
-                onClick={() => setIsPrintImages((p) => !p)}
+                defaultChecked={isPrintImagesRef.current}
+                onClick={() => (isPrintImagesRef.current = !isPrintImagesRef.current)}
               />
             </label>
           </div>

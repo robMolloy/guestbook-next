@@ -1,2 +1,5 @@
 - TODO use cloud functions to watch if an image is uploaded and create a dbEntry
--
+- TODO currently the "watcher" relies on th UI being open - create a listeners route
+  - use a get route to get current listeners
+  - use post to create a listener that takes a JWT eventID and UID
+  - cancel listeners on logout
